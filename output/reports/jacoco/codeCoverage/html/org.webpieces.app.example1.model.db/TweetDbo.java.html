@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>TweetDbo.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">feature-test-blog</a> &gt; <a href="index.source.html" class="el_package">org.webpieces.app.example1.model.db</a> &gt; <span class="el_source">TweetDbo.java</span></div><h1>TweetDbo.java</h1><pre class="source lang-java linenums">package org.webpieces.app.example1.model.db;
+
+import java.util.List;
+
+import javax.persistence.Entity;
+import javax.persistence.EntityManager;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
+import javax.persistence.NoResultException;
+import javax.persistence.Query;
+import javax.persistence.SequenceGenerator;
+import javax.persistence.Table;
+
+@Entity
+@Table(name = &quot;TWEETS&quot;)
+@NamedQueries({
+    @NamedQuery(name = &quot;findAllTweets&quot;, query = &quot;select u from TweetDbo as u&quot;)
+//    @NamedQuery(name = &quot;findByName&quot;, query = &quot;select u from TweetDbo as u where u.name=:name&quot;)
+})
+<span class="fc" id="L23">public class TweetDbo {</span>
+  @Id
+  @SequenceGenerator(name = &quot;tweet_id_gen&quot;, sequenceName = &quot;tweet_sequence&quot;, initialValue = 1, allocationSize = 10)
+  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = &quot;tweet_id_gen&quot;)
+  private Integer id;
+
+  private String fromUser;
+  private String text;
+
+  public Integer getId() {
+<span class="nc" id="L33">    return id;</span>
+  }
+
+  public void setId(Integer id) {
+<span class="nc" id="L37">    this.id = id;</span>
+<span class="nc" id="L38">  }</span>
+
+  public String getFromUser() {
+<span class="nc" id="L41">    return fromUser;</span>
+  }
+
+  public void setFromUser(String fromUser) {
+<span class="fc" id="L45">    this.fromUser = fromUser;</span>
+<span class="fc" id="L46">  }</span>
+
+  public void setText(String text) {
+<span class="fc" id="L49">    this.text = text;</span>
+<span class="fc" id="L50">  }</span>
+
+  public String getText() {
+<span class="nc" id="L53">    return text;</span>
+
+  }
+
+  @SuppressWarnings(&quot;unchecked&quot;)
+  public static List&lt;TweetDbo&gt; findAll(EntityManager mgr) {
+<span class="fc" id="L59">    Query query = mgr.createNamedQuery(&quot;findAllTweets&quot;);</span>
+<span class="fc" id="L60">    return query.getResultList();</span>
+  }
+
+  public static TweetDbo findById(EntityManager mgr, Integer id) {
+    try {
+<span class="nc" id="L65">      return (TweetDbo) mgr.find(TweetDbo.class, id);</span>
+<span class="nc" id="L66">    } catch (NoResultException e) {</span>
+<span class="nc" id="L67">      return null;</span>
+    }
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.1.201405082137</span></div></body></html>

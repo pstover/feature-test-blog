@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>ServerConfig.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">feature-test-blog</a> &gt; <a href="index.source.html" class="el_package">org.webpieces.app</a> &gt; <span class="el_source">ServerConfig.java</span></div><h1>ServerConfig.java</h1><pre class="source lang-java linenums">package org.webpieces.app;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+
+import org.webpieces.plugins.hibernate.HibernatePlugin;
+import org.webpieces.util.file.VirtualFile;
+
+public class ServerConfig {
+
+	private VirtualFile metaFile;
+<span class="fc" id="L13">	private boolean validateRouteIdsOnStartup = false;</span>
+<span class="fc" id="L14">	private int httpPort = 8080;</span>
+<span class="fc" id="L15">	private int httpsPort = 8443;</span>
+<span class="fc" id="L16">	private Long staticFileCacheTimeSeconds = TimeUnit.SECONDS.convert(30, TimeUnit.DAYS);</span>
+<span class="fc" id="L17">	private Map&lt;String, String&gt; webAppMetaProperties = new HashMap&lt;&gt;();</span>
+
+<span class="fc" id="L19">	public ServerConfig(int httpPort, int httpsPort, String persistenceUnit) {</span>
+<span class="fc" id="L20">		webAppMetaProperties.put(HibernatePlugin.PERSISTENCE_UNIT_KEY, persistenceUnit);</span>
+<span class="fc" id="L21">		this.httpPort = httpPort;</span>
+<span class="fc" id="L22">		this.httpsPort = httpsPort;</span>
+<span class="fc" id="L23">	}</span>
+	
+	public ServerConfig(String persistenceUnit) {
+<span class="fc" id="L26">		this(8080, 8443, persistenceUnit);</span>
+<span class="fc" id="L27">	}</span>
+	
+	public VirtualFile getMetaFile() {
+<span class="fc" id="L30">		return metaFile;</span>
+	}
+	public void setMetaFile(VirtualFile metaFile) {
+<span class="fc" id="L33">		this.metaFile = metaFile;</span>
+<span class="fc" id="L34">	}</span>
+	public boolean isValidateRouteIdsOnStartup() {
+<span class="fc" id="L36">		return validateRouteIdsOnStartup;</span>
+	}
+	public void setValidateRouteIdsOnStartup(boolean validateRouteIdsOnStartup) {
+<span class="fc" id="L39">		this.validateRouteIdsOnStartup = validateRouteIdsOnStartup;</span>
+<span class="fc" id="L40">	}</span>
+	public int getHttpPort() {
+<span class="fc" id="L42">		return httpPort;</span>
+	}
+	public void setHttpPort(int httpPort) {
+<span class="fc" id="L45">		this.httpPort = httpPort;</span>
+<span class="fc" id="L46">	}</span>
+	public int getHttpsPort() {
+<span class="fc" id="L48">		return httpsPort;</span>
+	}
+	public void setHttpsPort(int httpsPort) {
+<span class="fc" id="L51">		this.httpsPort = httpsPort;</span>
+<span class="fc" id="L52">	}</span>
+	public Long getStaticFileCacheTimeSeconds() {
+<span class="fc" id="L54">		return staticFileCacheTimeSeconds ;</span>
+	}
+
+	public void setStaticFileCacheTimeSeconds(Long staticFileCacheTimeSeconds) {
+<span class="fc" id="L58">		this.staticFileCacheTimeSeconds = staticFileCacheTimeSeconds;</span>
+<span class="fc" id="L59">	}</span>
+
+	public Map&lt;String, String&gt; getWebAppMetaProperties() {
+<span class="fc" id="L62">		return webAppMetaProperties;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.1.201405082137</span></div></body></html>

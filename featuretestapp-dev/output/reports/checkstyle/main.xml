@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<checkstyle version="5.9">
+<file name="/Users/pstover/workspace/feature-test-blog/featuretestapp-dev/src/main/java/org/webpieces/app/DevelopmentServer.java">
+</file>
+<file name="/Users/pstover/workspace/feature-test-blog/featuretestapp-dev/src/main/java/org/webpieces/app/ProdServerForIDE.java">
+</file>
+<file name="/Users/pstover/workspace/feature-test-blog/featuretestapp-dev/src/main/java/org/webpieces/app/meta/DeveloperMeta.java">
+</file>
+</checkstyle>

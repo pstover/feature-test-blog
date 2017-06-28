@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>GuiceModule.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">feature-test-blog</a> &gt; <a href="index.source.html" class="el_package">org.webpieces.app.base</a> &gt; <span class="el_source">GuiceModule.java</span></div><h1>GuiceModule.java</h1><pre class="source lang-java linenums">package org.webpieces.app.base;
+
+import org.webpieces.app.example1.remoteclients.HydratorService;
+import org.webpieces.app.example1.remoteclients.TweetSearchService;
+import org.webpieces.app.example1.remoteclients.UserSearchService;
+import org.webpieces.app.example1.remoteclients.impl.HydratorServiceImpl;
+import org.webpieces.app.example1.remoteclients.impl.TweetSearchServiceImpl;
+import org.webpieces.app.example1.remoteclients.impl.UserSearchServiceImpl;
+import org.webpieces.router.api.Startable;
+
+import com.google.inject.Binder;
+import com.google.inject.Module;
+import com.google.inject.multibindings.Multibinder;
+
+<span class="fc" id="L15">public class GuiceModule implements Module {</span>
+
+  //This is where you would put the guice bindings you need though generally if done
+  //right, you won't have much in this file.
+
+  //If you need more Guice Modules as you want to scale, just modify FeatureTestAppMeta which returns
+  //the list of all the Guice Modules in your application
+  @Override
+  public void configure(Binder binder) {
+    //all modules have access to adding their own Startable objects to be run on server startup
+<span class="fc" id="L25">    Multibinder&lt;Startable&gt; uriBinder = Multibinder.newSetBinder(binder, Startable.class);</span>
+<span class="fc" id="L26">    uriBinder.addBinding().to(PopulateDatabase.class);</span>
+
+<span class="fc" id="L28">    binder.bind(TweetSearchService.class).to(TweetSearchServiceImpl.class);</span>
+
+<span class="fc" id="L30">    binder.bind(HydratorService.class).to(HydratorServiceImpl.class);</span>
+
+<span class="fc" id="L32">    binder.bind(UserSearchService.class).to(UserSearchServiceImpl.class);</span>
+<span class="fc" id="L33">  }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.1.201405082137</span></div></body></html>

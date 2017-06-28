@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>Server.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">feature-test-blog</a> &gt; <a href="index.source.html" class="el_package">org.webpieces.app</a> &gt; <span class="el_source">Server.java</span></div><h1>Server.java</h1><pre class="source lang-java linenums">package org.webpieces.app;
+
+import java.io.File;
+import java.net.InetSocketAddress;
+import java.net.SocketException;
+import java.nio.channels.ServerSocketChannel;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+
+import org.webpieces.nio.api.channels.TCPServerChannel;
+import org.webpieces.router.api.PortConfig;
+import org.webpieces.router.api.RouterConfig;
+import org.webpieces.templating.api.TemplateConfig;
+import org.webpieces.util.file.VirtualFile;
+import org.webpieces.util.file.VirtualFileClasspath;
+import org.webpieces.util.logging.Logger;
+import org.webpieces.util.logging.LoggerFactory;
+import org.webpieces.util.security.SecretKeyInfo;
+import org.webpieces.webserver.api.WebServer;
+import org.webpieces.webserver.api.WebServerConfig;
+import org.webpieces.webserver.api.WebServerFactory;
+
+import com.google.inject.Module;
+
+/**
+ * Changes to any class in this package (or any classes these classes reference) WILL require a 
+ * restart when you are running the DevelopmentServer.  This class should try to remain pretty
+ * thin and you should avoid linking any classes in this package to classes outside this
+ * package(This is only true if you want to keep using the development server).  In production,
+ * we do not play any classloader games at all(unlike play framework) avoiding any prod issues.
+ */
+public class Server {
+	
+	/*******************************************************************************
+	 * When running the dev server, changes to this file AND to any files in this package
+	 * require a server restart(you can try not to but it won't work)
+	 *******************************************************************************/
+	
+<span class="fc" id="L40">	private static final Logger log = LoggerFactory.getLogger(Server.class);</span>
+	
+<span class="fc" id="L42">	public static final Charset ALL_FILE_ENCODINGS = StandardCharsets.UTF_8;</span>
+	
+	//Welcome to YOUR main method as webpieces webserver is just a library you use that you can
+	//swap literally any piece of
+	public static void main(String[] args) throws InterruptedException {
+		try {
+<span class="nc" id="L48">			Server server = new Server(null, null, new ServerConfig(&quot;production&quot;));</span>
+			
+<span class="nc" id="L50">			server.start();</span>
+			
+<span class="nc" id="L52">			synchronized (Server.class) {</span>
+				//wait forever so server doesn't shut down..
+<span class="nc" id="L54">				Server.class.wait();</span>
+<span class="nc" id="L55">			}	</span>
+<span class="nc" id="L56">		} catch(Throwable e) {</span>
+<span class="nc" id="L57">			log.error(&quot;Failed to startup.  exiting jvm&quot;, e);</span>
+<span class="nc" id="L58">			System.exit(1); // should not be needed BUT some 3rd party libraries start non-daemon threads :(</span>
+<span class="nc" id="L59">		}</span>
+<span class="nc" id="L60">	}</span>
+	
+	private WebServer webServer;
+
+	public Server(
+			Module platformOverrides, 
+			Module appOverrides, 
+<span class="fc" id="L67">			ServerConfig svrConfig) {</span>
+<span class="fc" id="L68">		String filePath = System.getProperty(&quot;user.dir&quot;);</span>
+<span class="fc" id="L69">		log.info(&quot;original user.dir before modification=&quot;+filePath);</span>
+
+<span class="fc" id="L71">		modifyUserDirForManyEnvironments(filePath);</span>
+
+<span class="fc" id="L73">		VirtualFile metaFile = svrConfig.getMetaFile();</span>
+		//Dev server has to override this
+<span class="fc bfc" id="L75" title="All 2 branches covered.">		if(metaFile == null)</span>
+<span class="fc" id="L76">			metaFile = new VirtualFileClasspath(&quot;appmeta.txt&quot;, Server.class.getClassLoader());</span>
+
+<span class="pc bpc" id="L78" title="1 of 2 branches missed.">		if(!metaFile.exists())</span>
+<span class="nc" id="L79">			throw new RuntimeException(&quot;file not found=&quot;+metaFile);</span>
+		
+		//This override is only needed if you want to add your own Html Tags to re-use
+		//you can delete this code if you are not adding your own html tags
+//		Module allOverrides = new TagLookupOverride();
+//		if(platformOverrides != null) {
+//			allOverrides = Modules.combine(platformOverrides, allOverrides);
+//		}
+		
+<span class="fc" id="L88">		SecretKeyInfo signingKey = new SecretKeyInfo(fetchKey(), &quot;HmacSHA1&quot;);</span>
+		
+		//Different pieces of the server have different configuration objects where settings are set
+		//You could move these to property files but definitely put some thought if you want people 
+		//randomly changing those properties and restarting the server without going through some testing
+		//by a QA team.  We leave most of these properties right here.
+<span class="fc" id="L94">		RouterConfig routerConfig = new RouterConfig()</span>
+<span class="fc" id="L95">											.setMetaFile(metaFile)</span>
+<span class="fc" id="L96">											.setWebappOverrides(appOverrides)</span>
+<span class="fc" id="L97">											.setWebAppMetaProperties(svrConfig.getWebAppMetaProperties())</span>
+<span class="fc" id="L98">											.setSecretKey(signingKey)</span>
+<span class="fc" id="L99">											.setPortConfigCallback(() -&gt; fetchPortsForRedirects());</span>
+		
+<span class="fc" id="L101">		WebServerConfig config = new WebServerConfig()</span>
+//										.setPlatformOverrides(allOverrides)
+<span class="fc" id="L103">										.setPlatformOverrides(platformOverrides)</span>
+<span class="fc" id="L104">										.setHttpListenAddress(new InetSocketAddress(svrConfig.getHttpPort()))</span>
+<span class="fc" id="L105">										.setHttpsListenAddress(new InetSocketAddress(svrConfig.getHttpsPort()))</span>
+<span class="fc" id="L106">										.setSslEngineFactory(new WebSSLFactory())</span>
+<span class="fc" id="L107">										.setFunctionToConfigureServerSocket(s -&gt; configure(s))</span>
+<span class="fc" id="L108">										.setValidateRouteIdsOnStartup(svrConfig.isValidateRouteIdsOnStartup())</span>
+<span class="fc" id="L109">										.setStaticFileCacheTimeSeconds(svrConfig.getStaticFileCacheTimeSeconds());</span>
+<span class="fc" id="L110">		TemplateConfig templateConfig = new TemplateConfig();</span>
+		
+<span class="fc" id="L112">		webServer = WebServerFactory.create(config, routerConfig, templateConfig);</span>
+<span class="fc" id="L113">	}</span>
+	
+	PortConfig fetchPortsForRedirects() {
+		//NOTE: You will need to modify this so it detects when you are behind a firewall that has ports exposed to 
+		//customers different than the ports your server exposes
+<span class="nc" id="L118">		boolean useFirewallPorts = false;</span>
+		
+		//NOTE: for running locally and for tests, you must set useFirewallPorts=false
+		
+<span class="nc" id="L122">		int httpPort = 80; //good security teams generally have the firewall on port 80 and your server on something like 8080</span>
+<span class="nc" id="L123">		int httpsPort = 443; //good security teams generally have the firewall on port 443 and your server on something like 8443</span>
+<span class="nc bnc" id="L124" title="All 2 branches missed.">		if(!useFirewallPorts) {</span>
+			//otherwise use the same port the webserver is bound to
+			//this is for running locally AND for local tests
+<span class="nc" id="L127">			httpPort = getUnderlyingHttpChannel().getLocalAddress().getPort();</span>
+<span class="nc" id="L128">			httpsPort = getUnderlyingHttpsChannel().getLocalAddress().getPort();</span>
+		}
+<span class="nc" id="L130">		return new PortConfig(httpPort, httpsPort);</span>
+	}
+	
+	private byte[] fetchKey() {
+		//This is purely so it works before template creation
+		//NOTE: our build runs all template tests that are generated to make sure we don't break template 
+		//generation but for that to work pre-generation, we need this code but you are free to delete it...
+<span class="fc" id="L137">		String base64Key = &quot;0+xNcdQ860iRlJV2dwwTLuPn4UCLmM/05oa4tMME/t15oOenttZJ3+m6Z0VRwCwYf0RXEDA6AJkW811+dsdaDQ==&quot;;  //This gets replaced with a unique key each generated project which you need to keep or replace with your own!!!</span>
+<span class="pc bpc" id="L138" title="1 of 2 branches missed.">		if(base64Key.startsWith(&quot;__SECRETKEY&quot;))  //This does not get replaced (user can remove it from template)</span>
+<span class="nc" id="L139">			return base64Key.getBytes();</span>
+<span class="fc" id="L140">		return Base64.getDecoder().decode(base64Key);</span>
+	}
+
+	private void modifyUserDirForManyEnvironments(String filePath) {
+<span class="fc" id="L144">		String finalUserDir = modifyUserDirForManyEnvironmentsImpl(filePath);</span>
+<span class="fc" id="L145">		System.setProperty(&quot;user.dir&quot;, finalUserDir);</span>
+<span class="fc" id="L146">		log.info(&quot;RECONFIGURED user.dir=&quot;+finalUserDir);</span>
+<span class="fc" id="L147">	}</span>
+
+	/**
+	 * I like things to work seamlessly but user.dir is a huge issue in multiple environments I am working in.
+	 * main server has to work in N configurations that should be tested and intellij is a PITA since
+	 * it is inconsistent.  PP means runs in the project the file is in and eclipse is consistent with
+	 * gradle while intellij is only half the time....
+	 * 
+	 * app dev - The environment when you generate a project and import it into an IDE
+	 * webpieces - The environment where you test the template directly when bringing in webpieces into an IDE
+	 * 
+	 * 
+	 * * app dev / eclipse -
+	 *    * PP - running myapp/src/tests - user.dir=myapp-all/myapp
+	 *    * PP - DevServer - user.dir=myapp-all/myapp-dev
+	 *    * PP - SemiProductionServer - user.dir=myapp-all/myapp-dev
+	 *    * PP - ProdServer - user.dir=myapp-all/myapp
+	 * * app dev / intellij (it's different paths than eclipse :( ).  user.dir starts as myapp directory
+	 *    * PP - running myapp/src/tests - myapp-all/myapp
+	 *    * NO - DevServer - user.dir=myapp-all :( what the hell!  different from running tests
+	 *    * NO - SemiProductionServer - user.dir=myapp-all
+	 *    * NO - ProdServer - user.dir=myapp-all
+	 * * webpieces / eclipse - same as app dev because eclipse is nice in this aspect
+	 * * webpieces / intellij - ANNOYING and completely different.  Runs out of webpieces a few levels down from actual subproject
+	 * * PP - tests in webpieces gradle - myapp-all/myapp
+	 * * PP - tests in myapp's gradle run - myapp-all/myapp
+	 * * NO - production - user.dir=from distribution myapp directory which has subdirs bin, lib, config, public
+	 * * Future? - run DevSvr,SemiProdSvr,ProdSvr from gradle?....screw that for now..it's easy to run from IDE so why bother(it may just work though too)
+	 * 
+	 * - so in production, the relative paths work from myapp so 'public/' is a valid location for html files resolving to myapp/public
+	 * - in testing, IF we want myapp-all/myapp/src/dist/public involved, it would be best to run from myapp-all/myapp/src/dist so 'public/' is still a valid location
+	 * - in devserver, semiprodserver, and prod server, the same idea follows where myapp-all/myapp/src/dist should be the user.dir!!!
+	 * 
+	 * - sooooo, algorithm is this
+	 * - if user.dir=myapp-all, modify user.dir to myapp-all/myapp/src/dist (you are in intellij)
+	 * - else if user.dir=myapp-dev, modify to ../myapp/src/dist
+	 * - else if myapp has directories bin, lib, config, public then do nothing
+	 * - else modify user.dir=myapp to myapp/src/dist
+	 */
+	private String modifyUserDirForManyEnvironmentsImpl(String filePath) {
+<span class="fc" id="L187">		File f = new File(filePath);</span>
+<span class="fc" id="L188">		String name = f.getName();</span>
+<span class="pc bpc" id="L189" title="1 of 2 branches missed.">		if(&quot;featuretestapp-all&quot;.equals(name)) {</span>
+<span class="nc" id="L190">			return new File(filePath, &quot;featuretestapp/src/dist&quot;).getAbsolutePath();</span>
+<span class="fc bfc" id="L191" title="All 2 branches covered.">		} else if(&quot;featuretestapp-dev&quot;.equals(name)) {</span>
+<span class="fc" id="L192">			File parent = f.getParentFile();</span>
+<span class="fc" id="L193">			return new File(parent, &quot;featuretestapp/src/dist&quot;).getAbsolutePath();</span>
+<span class="fc bfc" id="L194" title="All 2 branches covered.">		} else if(!&quot;featuretestapp&quot;.equals(name)) {</span>
+<span class="pc bpc" id="L195" title="1 of 2 branches missed.">			if(filePath.endsWith(&quot;featuretestapp/src/dist&quot;))</span>
+<span class="fc" id="L196">				return filePath; //This occurs when a previous test ran already and set user.dir</span>
+<span class="nc bnc" id="L197" title="All 2 branches missed.">			else if(filePath.endsWith(&quot;webpieces&quot;)) //</span>
+<span class="nc" id="L198">				return filePath+&quot;/webserver/webpiecesServerBuilder/templateProject/featuretestapp/src/dist&quot;;</span>
+<span class="nc" id="L199">			throw new IllegalStateException(&quot;bug, we must have missed an environment=&quot;+name);</span>
+		}
+		
+<span class="fc" id="L202">		File bin = new File(f, &quot;bin&quot;);</span>
+<span class="fc" id="L203">		File lib = new File(f, &quot;lib&quot;);</span>
+<span class="fc" id="L204">		File config = new File(f, &quot;config&quot;);</span>
+<span class="fc" id="L205">		File publicFile = new File(f, &quot;public&quot;);</span>
+<span class="pc bpc" id="L206" title="7 of 8 branches missed.">		if(bin.exists() &amp;&amp; lib.exists() &amp;&amp; config.exists() &amp;&amp; publicFile.exists()) {</span>
+<span class="nc" id="L207">			return filePath;</span>
+		}
+		
+<span class="fc" id="L210">		return new File(f, &quot;src/dist&quot;).getAbsolutePath();</span>
+	}
+
+	/**
+	 * This is a bit clunky BUT if jdk authors add methods that you can configure, we do not have
+	 * to change our platform every time so you can easily set the new properties rather than waiting for
+	 * us to release a new version 
+	 */
+	public void configure(ServerSocketChannel channel) throws SocketException {
+<span class="fc" id="L219">		channel.socket().setReuseAddress(true);</span>
+		//channel.socket().setSoTimeout(timeout);
+		//channel.socket().setReceiveBufferSize(size);
+<span class="fc" id="L222">	}</span>
+	
+	public void start() {
+<span class="fc" id="L225">		webServer.startSync();</span>
+<span class="fc" id="L226">	}</span>
+
+	public void stop() {
+<span class="fc" id="L229">		webServer.stop();</span>
+<span class="fc" id="L230">	}</span>
+
+	public TCPServerChannel getUnderlyingHttpChannel() {
+<span class="fc" id="L233">		return webServer.getUnderlyingHttpChannel();</span>
+	}
+
+	public TCPServerChannel getUnderlyingHttpsChannel() {
+<span class="nc" id="L237">		return webServer.getUnderlyingHttpsChannel();</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.1.201405082137</span></div></body></html>

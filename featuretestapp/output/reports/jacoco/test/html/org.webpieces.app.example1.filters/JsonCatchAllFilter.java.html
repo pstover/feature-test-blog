@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>JsonCatchAllFilter.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">featuretestapp</a> &gt; <a href="index.source.html" class="el_package">org.webpieces.app.example1.filters</a> &gt; <span class="el_source">JsonCatchAllFilter.java</span></div><h1>JsonCatchAllFilter.java</h1><pre class="source lang-java linenums">package org.webpieces.app.example1.filters;
+
+import org.apache.commons.lang3.StringEscapeUtils;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.webpieces.app.example1.errors.JsonError;
+import org.webpieces.plugins.json.JacksonCatchAllFilter;
+import org.webpieces.router.api.exceptions.ClientDataError;
+
+import com.google.inject.Inject;
+
+public class JsonCatchAllFilter extends JacksonCatchAllFilter {
+
+	private ObjectMapper mapper;
+
+	@Inject
+<span class="fc" id="L16">	public JsonCatchAllFilter(ObjectMapper mapper) {</span>
+<span class="fc" id="L17">		this.mapper = mapper;</span>
+<span class="fc" id="L18">	}</span>
+	
+	@Override
+	protected byte[] translateClientError(ClientDataError t) {
+<span class="nc" id="L22">		String escapeJson = StringEscapeUtils.escapeJson(t.getMessage());</span>
+<span class="nc" id="L23">		JsonError error = new JsonError(&quot;400 bad request: &quot;+escapeJson, 0);</span>
+		
+<span class="nc" id="L25">		return translateJson(mapper, error);</span>
+	}
+
+	@Override
+	protected byte[] createNotFoundJsonResponse() {
+<span class="nc" id="L30">		JsonError error = new JsonError(&quot;404 This url does not exist.  try another url&quot;, 0);</span>
+<span class="nc" id="L31">		return translateJson(mapper, error);</span>
+	}
+
+	@Override
+	protected byte[] translateServerError(Throwable t) {
+<span class="nc" id="L36">		JsonError error = new JsonError(&quot;Server ran into a bug, please report&quot;, 0);</span>
+<span class="nc" id="L37">		return translateJson(mapper, error);</span>
+	}
+	
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.1.201405082137</span></div></body></html>
