@@ -91,6 +91,8 @@ public class TestSearchRequestResponse extends AbstractWebpiecesTest {
 
     resp.assertStatusCode(KnownStatusCode.HTTP_200_OK);
     resp.assertContentType("application/json");
+
+    System.out.println(resp.getBodyAsString());
   }
 
   static HttpRequest createRequest(String uri) {
