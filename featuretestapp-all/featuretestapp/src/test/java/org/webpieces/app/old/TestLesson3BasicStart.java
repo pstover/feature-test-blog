@@ -2,6 +2,7 @@ package org.webpieces.app.old;
 import java.io.IOException;
 
 import org.junit.Test;
+import org.webpieces.JavaCache;
 import org.webpieces.ddl.api.JdbcApi;
 import org.webpieces.ddl.api.JdbcConstants;
 import org.webpieces.ddl.api.JdbcFactory;
@@ -44,7 +45,8 @@ public class TestLesson3BasicStart {
 		// non-guice singletons).  A guice singleton is only a singleton within the scope of a server
 		//while a java singleton....well, pretty much sucks.  Google "Singletons are evil".
 		
-		Server server2 = new Server(null, null, new ServerConfig(HibernatePlugin.PERSISTENCE_TEST_UNIT));
+		Server server2 = new Server(null, null,
+				new ServerConfig(0, 0, HibernatePlugin.PERSISTENCE_TEST_UNIT, JavaCache.getCacheLocation()));
 		//In this case, we bind a port
 		server2.start();
 		System.out.println("bound port="+server.getUnderlyingHttpChannel().getLocalAddress());

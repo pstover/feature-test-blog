@@ -21,8 +21,7 @@ public class GuiRoutes extends AbstractRoutes {
 		addRoute(GET, "/",              "ExamplesController.index", MAIN_ROUTE);
 
 		//Add where all the html files exist
-		String workingDir = System.getProperty("user.dir");
-		addStaticDir("/assets/", workingDir+"/public/", false);
+		addStaticDir("/assets/", "public/", false);
 		//Add a single file by itself(not really needed)
 		addStaticFile("/favicon.ico", "public/favicon.ico", false);
 		addStaticFile("/test.css", "public/crud/fonts.css", false);

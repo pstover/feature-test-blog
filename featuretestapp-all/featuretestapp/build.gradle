@@ -7,27 +7,40 @@ buildscript {
         }
     }
     dependencies {
-        classpath 'org.webpieces:gradle-plugin-htmlcompiler:1.9.80'
+        classpath 'org.webpieces:gradle-plugin-htmlcompiler:1.9.86'
     }
 }
 
 apply plugin: 'application'
+apply plugin: 'idea'
 apply plugin: 'org.webpieces.templatecompiler'
 
-sourceSets {
-    //For debugging in IDE(for tests and server), we need to put the html files on the classpath which are co-located with the controllers
-    test {
-        resources {
-            //This ADDS src/main/java/**/*.html and we still read in src/test/resources/**
-            srcDirs = ["src/main/java", "src/test/resources"]
-            excludes = ["**/*.java"]
+//Intellij Idea has a weird quirk we need to avoid
+if (System.getProperty('idea.active')) {
+    // to add src/main/java/**/*.html files for the IntelliJ resource builder
+    sourceSets {
+        main {
+            resources {
+                srcDirs += ["src/main/java"]
+                excludes = ["logback.xml"]
+            }
         }
     }
-    main {
-        resources {
-            //This is so we don't put this in production as it is really only for running prod server in 
-            //the IDE and luckily some IDE's ignore this piece and don't exclude it
-            excludes = ["logback.xml"]
+
+    // to have classes and resources in the same output directory
+    idea {
+        module {
+            outputDir file("out/production/classes")
+        }
+    }
+} else {
+    sourceSets {
+        main {
+            resources {
+                //This is so we don't put this in production as it is really only for running prod server in
+                //the IDE and luckily some IDE's ignore this piece and don't exclude it
+                excludes = ["logback.xml"]
+            }
         }
     }
 }

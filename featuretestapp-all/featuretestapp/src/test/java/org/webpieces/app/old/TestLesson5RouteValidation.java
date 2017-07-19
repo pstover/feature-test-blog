@@ -3,6 +3,7 @@ package org.webpieces.app.old;
 import java.io.IOException;
 
 import org.junit.Test;
+import org.webpieces.JavaCache;
 import org.webpieces.plugins.hibernate.HibernatePlugin;
 import org.webpieces.webserver.test.Asserts;
 
@@ -22,7 +23,8 @@ public class TestLesson5RouteValidation {
 		if(property == null || !"true".equals(property))
 			return; //don't run test except in gradle build
 		
-		ServerConfig serverConfig = new ServerConfig(HibernatePlugin.PERSISTENCE_TEST_UNIT);
+		ServerConfig serverConfig = new ServerConfig(
+				0, 0, HibernatePlugin.PERSISTENCE_TEST_UNIT, JavaCache.getCacheLocation());
 		serverConfig.setHttpPort(0); //bind to any port
 		serverConfig.setHttpsPort(0); //bind to any port
 		serverConfig.setValidateRouteIdsOnStartup(true);

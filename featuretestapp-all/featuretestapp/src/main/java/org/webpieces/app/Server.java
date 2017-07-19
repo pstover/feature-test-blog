@@ -12,6 +12,7 @@ import org.webpieces.nio.api.channels.TCPServerChannel;
 import org.webpieces.router.api.PortConfig;
 import org.webpieces.router.api.RouterConfig;
 import org.webpieces.templating.api.TemplateConfig;
+import org.webpieces.util.file.FileFactory;
 import org.webpieces.util.file.VirtualFile;
 import org.webpieces.util.file.VirtualFileClasspath;
 import org.webpieces.util.logging.Logger;
@@ -69,6 +70,7 @@ public class Server {
 		log.info("original user.dir before modification="+filePath);
 
 		modifyUserDirForManyEnvironments(filePath);
+		File baseWorkingDir = modifyUserDirForManyEnvironments(filePath);
 
 		VirtualFile metaFile = svrConfig.getMetaFile();
 		//Dev server has to override this
@@ -91,12 +93,13 @@ public class Server {
 		//You could move these to property files but definitely put some thought if you want people 
 		//randomly changing those properties and restarting the server without going through some testing
 		//by a QA team.  We leave most of these properties right here.
-		RouterConfig routerConfig = new RouterConfig()
+		RouterConfig routerConfig = new RouterConfig(baseWorkingDir)
 											.setMetaFile(metaFile)
 											.setWebappOverrides(appOverrides)
 											.setWebAppMetaProperties(svrConfig.getWebAppMetaProperties())
 											.setSecretKey(signingKey)
-											.setPortConfigCallback(() -> fetchPortsForRedirects());
+											.setPortConfigCallback(() -> fetchPortsForRedirects())
+											.setCachedCompressedDirectory(svrConfig.getCompressionCacheDir());
 		
 		WebServerConfig config = new WebServerConfig()
 //										.setPlatformOverrides(allOverrides)
@@ -140,10 +143,10 @@ public class Server {
 		return Base64.getDecoder().decode(base64Key);
 	}
 
-	private void modifyUserDirForManyEnvironments(String filePath) {
-		String finalUserDir = modifyUserDirForManyEnvironmentsImpl(filePath);
-		System.setProperty("user.dir", finalUserDir);
-		log.info("RECONFIGURED user.dir="+finalUserDir);
+	private File modifyUserDirForManyEnvironments(String filePath) {
+		File finalUserDir = modifyUserDirForManyEnvironmentsImpl(filePath);
+		log.info("RECONFIGURED user.dir="+finalUserDir.getAbsolutePath());
+		return finalUserDir;
 	}
 
 	/**
@@ -183,31 +186,31 @@ public class Server {
 	 * - else if myapp has directories bin, lib, config, public then do nothing
 	 * - else modify user.dir=myapp to myapp/src/dist
 	 */
-	private String modifyUserDirForManyEnvironmentsImpl(String filePath) {
+	private File modifyUserDirForManyEnvironmentsImpl(String filePath) {
 		File f = new File(filePath);
 		String name = f.getName();
 		if("featuretestapp-all".equals(name)) {
-			return new File(filePath, "featuretestapp/src/dist").getAbsolutePath();
+			return FileFactory.newFile(f, "featuretestapp/src/dist");
 		} else if("featuretestapp-dev".equals(name)) {
 			File parent = f.getParentFile();
-			return new File(parent, "featuretestapp/src/dist").getAbsolutePath();
+			return FileFactory.newFile(parent, "featuretestapp/src/dist");
 		} else if(!"featuretestapp".equals(name)) {
 			if(filePath.endsWith("featuretestapp/src/dist"))
-				return filePath; //This occurs when a previous test ran already and set user.dir
+				return f; //This occurs when a previous test ran already and set user.dir
 			else if(filePath.endsWith("webpieces")) //
-				return filePath+"/webserver/webpiecesServerBuilder/templateProject/featuretestapp/src/dist";
-			throw new IllegalStateException("bug, we must have missed an environment="+name);
+				return FileFactory.newFile(f, "webserver/webpiecesServerBuilder/templateProject/featuretestapp/src/dist");
+			throw new IllegalStateException("bug, we must have missed an environment="+name + ", filePath=" + filePath);
 		}
-		
+
 		File bin = new File(f, "bin");
 		File lib = new File(f, "lib");
 		File config = new File(f, "config");
 		File publicFile = new File(f, "public");
 		if(bin.exists() && lib.exists() && config.exists() && publicFile.exists()) {
-			return filePath;
+			return f;
 		}
-		
-		return new File(f, "src/dist").getAbsolutePath();
+
+		return FileFactory.newFile(f, "src/dist");
 	}
 
 	/**

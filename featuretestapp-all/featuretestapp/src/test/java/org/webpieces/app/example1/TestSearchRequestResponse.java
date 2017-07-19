@@ -8,6 +8,7 @@ import java.util.concurrent.TimeoutException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.Before;
 import org.junit.Test;
+import org.webpieces.JavaCache;
 import org.webpieces.app.Server;
 import org.webpieces.app.ServerConfig;
 import org.webpieces.app.example1.remoteclients.HydratorService;
@@ -64,17 +65,27 @@ public class TestSearchRequestResponse extends AbstractWebpiecesTest {
   private HttpSocket http11Socket;
 
   @Before
-  public void setUp() throws InterruptedException, ClassNotFoundException, ExecutionException, TimeoutException {
-    log.info("Setting up test");
+  public void setUp() throws InterruptedException, ClassNotFoundException,
+      ExecutionException, TimeoutException
+  {
     Asserts.assertWasCompiledWithParamNames("test");
 
-    //you may want to create this server ONCE in a static method BUT if you do, also remember to clear out all your
-    //mocks after every test AND you can no longer run single threaded(tradeoffs, tradeoffs)
-    //This is however pretty fast to do in many systems...
-    Server webserver = new Server(
-        getOverrides(false), new AppOverridesModule(), new ServerConfig(pUnit));
+    boolean runClientRemote = false;
+    Server webserver = new Server(getOverrides(runClientRemote),
+        new AppOverridesModule(), new ServerConfig(0, 0, pUnit, JavaCache.getCacheLocation()));
     webserver.start();
-    http11Socket = connectHttp(false, null);
+    http11Socket = connectHttp(runClientRemote, null);
+  }
+
+  private class AppOverridesModule implements Module {
+    @Override
+    public void configure(Binder binder) {
+      //Add overrides here generally using mocks from fields in the test class
+
+      binder.bind(TweetSearchService.class).to(MockTweetSearchService.class);
+      binder.bind(HydratorService.class).to(MockHydratorService.class);
+      binder.bind(UserSearchService.class).to(MockUserSearchService.class);
+    }
   }
 
   /**
@@ -113,16 +124,5 @@ public class TestSearchRequestResponse extends AbstractWebpiecesTest {
 
     HttpFullRequest fullReq = new HttpFullRequest(request, dataWrapper);
     return fullReq;
-  }
-
-  private class AppOverridesModule implements Module {
-    @Override
-    public void configure(Binder binder) {
-      //Add overrides here generally using mocks from fields in the test class
-
-      binder.bind(TweetSearchService.class).to(MockTweetSearchService.class);
-      binder.bind(HydratorService.class).to(MockHydratorService.class);
-      binder.bind(UserSearchService.class).to(MockUserSearchService.class);
-    }
   }
 }

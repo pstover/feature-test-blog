@@ -17,8 +17,8 @@ public class JsonRoutes extends ScopedRoutes {
 
   @Override
   protected void configure() {
-//    addRoute(GET, "", "JsonController.index", ROOT);
-    addContentRoute(GET, "/", "JsonController.index");
-    addContentRoute(GET, "/search", "JsonController.search");
+//    addRoute(GET, "", "SearchController.index", ROOT);
+    addContentRoute(GET, "/", "SearchController.index");
+    addContentRoute(GET, "/search", "SearchController.search");
   }
 }

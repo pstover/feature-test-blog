@@ -14,7 +14,7 @@ import org.webpieces.app.example1.model.User;
 import org.webpieces.plugins.json.Jackson;
 
 @Singleton
-public class JsonController {
+public class SearchController {
   @Inject
   private UserSearch userSearch;
 
