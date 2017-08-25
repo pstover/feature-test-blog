@@ -15,6 +15,7 @@ import org.webpieces.app.example1.remoteclients.HydratorService;
 import org.webpieces.app.example1.remoteclients.TweetSearchService;
 import org.webpieces.app.example1.remoteclients.UserSearchService;
 import org.webpieces.app.example1.routes.SearchRequest;
+import org.webpieces.app.example1.util.Responses;
 import org.webpieces.app.mock.MockHydratorService;
 import org.webpieces.app.mock.MockRemoteSystem;
 import org.webpieces.app.mock.MockTweetSearchService;
@@ -64,6 +65,10 @@ public class TestSearchRequestResponse extends AbstractWebpiecesTest {
 
   private HttpSocket http11Socket;
 
+  private MockHydratorService mockHydratorService = new MockHydratorService();
+
+  private MockTweetSearchService mockTweetSearchService = new MockTweetSearchService();
+
   @Before
   public void setUp() throws InterruptedException, ClassNotFoundException,
       ExecutionException, TimeoutException
@@ -75,6 +80,13 @@ public class TestSearchRequestResponse extends AbstractWebpiecesTest {
         new AppOverridesModule(), new ServerConfig(0, 0, pUnit, JavaCache.getCacheLocation()));
     webserver.start();
     http11Socket = connectHttp(runClientRemote, null);
+
+    setupMocks();
+  }
+
+  private void setupMocks() {
+    mockHydratorService.setResponseMap(Responses.createTweetResponseMap());
+    mockTweetSearchService.setResponse(Responses.createBasicTweetIdListResponse());
   }
 
   private class AppOverridesModule implements Module {
@@ -82,9 +94,8 @@ public class TestSearchRequestResponse extends AbstractWebpiecesTest {
     public void configure(Binder binder) {
       //Add overrides here generally using mocks from fields in the test class
 
-      binder.bind(TweetSearchService.class).to(MockTweetSearchService.class);
-      binder.bind(HydratorService.class).to(MockHydratorService.class);
-      binder.bind(UserSearchService.class).to(MockUserSearchService.class);
+      binder.bind(TweetSearchService.class).toInstance(mockTweetSearchService);
+      binder.bind(HydratorService.class).toInstance(mockHydratorService);
     }
   }
 
@@ -103,7 +114,9 @@ public class TestSearchRequestResponse extends AbstractWebpiecesTest {
     resp.assertStatusCode(KnownStatusCode.HTTP_200_OK);
     resp.assertContentType("application/json");
 
-    System.out.println(resp.getBodyAsString());
+    resp.assertContains("test1");
+    resp.assertContains("test2");
+    resp.assertContains("tweeting");
   }
 
   static HttpRequest createRequest(String uri) {
