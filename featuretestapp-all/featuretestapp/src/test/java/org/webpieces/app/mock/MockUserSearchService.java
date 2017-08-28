@@ -4,8 +4,8 @@ import java.util.Map;
 
 import com.google.common.collect.ImmutableMap;
 
-import org.webpieces.app.example1.remoteclients.UserSearchService;
-import org.webpieces.app.example1.model.User;
+import org.webpieces.app.example1.business.remoteclients.UserSearchService;
+import org.webpieces.app.example1.business.model.User;
 
 public class MockUserSearchService implements UserSearchService {
   private Map<String, User> users = ImmutableMap.of(

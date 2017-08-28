@@ -5,8 +5,7 @@ import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.webpieces.app.example1.remoteclients.TweetSearchService;
-import org.webpieces.app.example1.routes.SearchRequest;
+import org.webpieces.app.example1.SearchRequest;
 import org.webpieces.app.example1.util.Responses;
 import org.webpieces.app.mock.MockTweetSearchService;
 

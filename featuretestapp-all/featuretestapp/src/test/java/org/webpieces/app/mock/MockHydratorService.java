@@ -1,12 +1,9 @@
 package org.webpieces.app.mock;
 
-import java.util.HashMap;
 import java.util.Map;
 
-import com.google.common.collect.ImmutableMap;
-
-import org.webpieces.app.example1.remoteclients.HydratorService;
-import org.webpieces.app.example1.model.Tweet;
+import org.webpieces.app.example1.business.remoteclients.HydratorService;
+import org.webpieces.app.example1.business.model.Tweet;
 
 public class MockHydratorService implements HydratorService {
   private Map<Integer, Tweet> tweets;

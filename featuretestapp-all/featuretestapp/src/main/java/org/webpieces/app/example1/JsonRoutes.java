@@ -1,4 +1,4 @@
-package org.webpieces.app.example1.routes;
+package org.webpieces.app.example1;
 
 import static org.webpieces.ctx.api.HttpMethod.GET;
 
@@ -17,7 +17,6 @@ public class JsonRoutes extends ScopedRoutes {
 
   @Override
   protected void configure() {
-//    addRoute(GET, "", "SearchController.index", ROOT);
     addContentRoute(GET, "/", "SearchController.index");
     addContentRoute(GET, "/search", "SearchController.search");
   }

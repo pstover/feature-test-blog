@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.webpieces.app.example1.filters.JsonCatchAllFilter;
-import org.webpieces.app.example1.routes.JsonRoutes;
+import org.webpieces.app.example1.JsonRoutes;
 import org.webpieces.app.gui.GuiRoutes;
 import org.webpieces.plugins.hibernate.HibernatePlugin;
 import org.webpieces.plugins.json.JacksonPlugin;
