@@ -6,10 +6,14 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import org.webpieces.app.example1.business.AuthenticationService;
+import org.webpieces.httpparser.api.dto.KnownStatusCode;
 import org.webpieces.router.api.actions.Action;
+import org.webpieces.router.api.actions.RenderContent;
 import org.webpieces.router.api.dto.MethodMeta;
 import org.webpieces.router.api.routing.RouteFilter;
 import org.webpieces.util.filters.Service;
+
+import static org.webpieces.plugins.json.JacksonCatchAllFilter.MIME_TYPE;
 
 @Singleton
 public class JsonAuthFilter extends RouteFilter<Void> {
@@ -27,7 +31,9 @@ public class JsonAuthFilter extends RouteFilter<Void> {
   @Override
   public CompletableFuture<Action> filter(MethodMeta meta, Service<MethodMeta, Action> nextFilter) {
     if (!authenticationService.validCredentials(meta.getCtx())) {
-      throw new AuthenticationException("Bad credentials!");
+      byte[] content = new byte[0];
+      return CompletableFuture.completedFuture(
+          new RenderContent(content, KnownStatusCode.HTTP_401_UNAUTHORIZED.getCode(), KnownStatusCode.HTTP_401_UNAUTHORIZED.getReason(), MIME_TYPE));
     } else {
       return nextFilter.invoke(meta);
     }
