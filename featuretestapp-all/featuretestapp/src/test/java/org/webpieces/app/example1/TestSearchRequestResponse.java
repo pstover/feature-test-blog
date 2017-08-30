@@ -1,10 +1,7 @@
 package org.webpieces.app.example1;
 
-import java.io.IOException;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeoutException;
-
+import com.google.inject.Binder;
+import com.google.inject.Module;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.Before;
 import org.junit.Test;
@@ -12,12 +9,10 @@ import org.webpieces.JavaCache;
 import org.webpieces.app.Server;
 import org.webpieces.app.ServerConfig;
 import org.webpieces.app.example1.business.AuthenticationService;
+import org.webpieces.app.example1.business.remoteclients.HydratorService;
+import org.webpieces.app.example1.business.remoteclients.TweetSearchService;
 import org.webpieces.app.example1.mock.MockAuthenticationService;
-import org.webpieces.app.example1.remoteclients.HydratorService;
-import org.webpieces.app.example1.remoteclients.TweetSearchService;
-import org.webpieces.app.example1.routes.SearchRequest;
 import org.webpieces.app.example1.mock.MockHydratorService;
-import org.webpieces.app.example1.mock.MockRemoteSystem;
 import org.webpieces.app.example1.mock.MockTweetSearchService;
 import org.webpieces.data.api.DataWrapper;
 import org.webpieces.data.api.DataWrapperGenerator;
@@ -27,11 +22,7 @@ import org.webpieces.httpclient11.api.HttpFullResponse;
 import org.webpieces.httpclient11.api.HttpSocket;
 import org.webpieces.httpparser.api.common.Header;
 import org.webpieces.httpparser.api.common.KnownHeaderName;
-import org.webpieces.httpparser.api.dto.HttpRequest;
-import org.webpieces.httpparser.api.dto.HttpRequestLine;
-import org.webpieces.httpparser.api.dto.HttpUri;
-import org.webpieces.httpparser.api.dto.KnownHttpMethod;
-import org.webpieces.httpparser.api.dto.KnownStatusCode;
+import org.webpieces.httpparser.api.dto.*;
 import org.webpieces.plugins.hibernate.HibernatePlugin;
 import org.webpieces.util.logging.Logger;
 import org.webpieces.util.logging.LoggerFactory;
@@ -40,8 +31,10 @@ import org.webpieces.webserver.test.Asserts;
 import org.webpieces.webserver.test.ResponseExtract;
 import org.webpieces.webserver.test.ResponseWrapper;
 
-import com.google.inject.Binder;
-import com.google.inject.Module;
+import java.io.IOException;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
 
 /**
  * These are working examples of tests that sometimes are better done with the BasicSeleniumTest example but are here for completeness
@@ -52,9 +45,6 @@ import com.google.inject.Module;
 public class TestSearchRequestResponse extends AbstractWebpiecesTest {
 
   private final static Logger log = LoggerFactory.getLogger(TestSearchRequestResponse.class);
-
-  //see below comments in AppOverrideModule
-  private MockRemoteSystem mockRemote = new MockRemoteSystem(); //our your favorite mock library
 
   private static String pUnit = HibernatePlugin.PERSISTENCE_TEST_UNIT;
 

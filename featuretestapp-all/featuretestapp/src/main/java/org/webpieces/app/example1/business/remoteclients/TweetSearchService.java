@@ -1,4 +1,4 @@
-package org.webpieces.app.example1.remoteclients;
+package org.webpieces.app.example1.business.remoteclients;
 
 import java.util.List;
 

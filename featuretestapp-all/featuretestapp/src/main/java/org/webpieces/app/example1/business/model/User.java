@@ -1,4 +1,4 @@
-package org.webpieces.app.example1.model;
+package org.webpieces.app.example1.business.model;
 
 // TODO Switch to UserDbo for DB data
 public class User {

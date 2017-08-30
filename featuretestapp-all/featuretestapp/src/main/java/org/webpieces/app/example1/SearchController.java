@@ -1,4 +1,4 @@
-package org.webpieces.app.example1.routes;
+package org.webpieces.app.example1;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -9,8 +9,8 @@ import javax.inject.Singleton;
 import org.webpieces.app.example1.business.Hydrator;
 import org.webpieces.app.example1.business.TweetIdSearch;
 import org.webpieces.app.example1.business.UserSearch;
-import org.webpieces.app.example1.model.Tweet;
-import org.webpieces.app.example1.model.User;
+import org.webpieces.app.example1.business.model.Tweet;
+import org.webpieces.app.example1.business.model.User;
 import org.webpieces.plugins.json.Jackson;
 
 @Singleton
