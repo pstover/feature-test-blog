@@ -3,6 +3,7 @@ package org.webpieces.app.base;
 import java.util.List;
 import java.util.Map;
 
+import org.webpieces.app.example1.filters.JsonAuthFilter;
 import org.webpieces.app.example1.filters.JsonCatchAllFilter;
 import org.webpieces.app.example1.routes.JsonRoutes;
 import org.webpieces.app.gui.GuiRoutes;

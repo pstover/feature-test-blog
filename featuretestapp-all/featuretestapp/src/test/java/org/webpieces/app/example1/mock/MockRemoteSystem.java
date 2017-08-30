@@ -1,4 +1,4 @@
-package org.webpieces.app.mock;
+package org.webpieces.app.example1.mock;
 
 import java.util.concurrent.CompletableFuture;
 

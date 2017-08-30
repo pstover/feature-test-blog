@@ -3,7 +3,9 @@ package org.webpieces.app.gui;
 import static org.webpieces.app.gui.ExamplesRouteId.MAIN_ROUTE;
 import static org.webpieces.ctx.api.HttpMethod.GET;
 
+import org.webpieces.app.example1.filters.JsonAuthFilter;
 import org.webpieces.router.api.routing.AbstractRoutes;
+import org.webpieces.router.api.routing.PortType;
 
 public class GuiRoutes extends AbstractRoutes {
 
@@ -28,6 +30,8 @@ public class GuiRoutes extends AbstractRoutes {
 
 		setPageNotFoundRoute("ExamplesController.notFound");
 		setInternalErrorRoute("ExamplesController.internalError");
+
+		addFilter(".*", JsonAuthFilter.class, null, PortType.HTTP_FILTER);
 	}
 
 }

@@ -1,4 +1,4 @@
-package org.webpieces.app.example1.errors;
+package org.webpieces.app.example1.filters;
 
 public class JsonError {
   private String error;

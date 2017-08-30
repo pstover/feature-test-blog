@@ -15,10 +15,6 @@ public class TweetIdSearch {
     this.tweetSearchService = tweetSearchService;
   }
 
-//  public List<Integer> query(String queryString) {
-//    return tweetSearchService.query(queryString);
-//  }
-
   public List<Integer> query(SearchRequest request) {
     return tweetSearchService.query(request.getQuery());
   }

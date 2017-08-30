@@ -1,7 +1,5 @@
-package org.webpieces.app.mock;
+package org.webpieces.app.example1.mock;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.webpieces.app.example1.remoteclients.TweetSearchService;

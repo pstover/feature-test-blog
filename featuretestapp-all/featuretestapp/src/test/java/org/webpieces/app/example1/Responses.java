@@ -1,4 +1,4 @@
-package org.webpieces.app.example1.util;
+package org.webpieces.app.example1;
 
 import com.google.common.collect.ImmutableMap;
 import org.webpieces.app.example1.model.Tweet;

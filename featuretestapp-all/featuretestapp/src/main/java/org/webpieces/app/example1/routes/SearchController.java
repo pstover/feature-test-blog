@@ -31,7 +31,6 @@ public class SearchController {
   }
 
   public SearchResponse search(@Jackson SearchRequest request) {
-//    List<Integer> tweetIds = tweetIdSearch.query(request.getQuery());
     List<Integer> tweetIds = tweetIdSearch.query(request);
 
     List<Tweet> tweets = tweetIds.stream()

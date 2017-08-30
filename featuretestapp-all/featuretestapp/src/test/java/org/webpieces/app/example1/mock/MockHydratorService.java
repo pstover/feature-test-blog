@@ -1,9 +1,6 @@
-package org.webpieces.app.mock;
+package org.webpieces.app.example1.mock;
 
-import java.util.HashMap;
 import java.util.Map;
-
-import com.google.common.collect.ImmutableMap;
 
 import org.webpieces.app.example1.remoteclients.HydratorService;
 import org.webpieces.app.example1.model.Tweet;

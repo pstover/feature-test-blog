@@ -2,7 +2,6 @@ package org.webpieces.app.example1.filters;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.webpieces.app.example1.errors.JsonError;
 import org.webpieces.plugins.json.JacksonCatchAllFilter;
 import org.webpieces.router.api.exceptions.ClientDataError;
 

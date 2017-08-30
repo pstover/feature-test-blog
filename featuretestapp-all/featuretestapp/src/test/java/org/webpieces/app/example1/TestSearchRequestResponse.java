@@ -11,15 +11,14 @@ import org.junit.Test;
 import org.webpieces.JavaCache;
 import org.webpieces.app.Server;
 import org.webpieces.app.ServerConfig;
+import org.webpieces.app.example1.business.AuthenticationService;
+import org.webpieces.app.example1.mock.MockAuthenticationService;
 import org.webpieces.app.example1.remoteclients.HydratorService;
 import org.webpieces.app.example1.remoteclients.TweetSearchService;
-import org.webpieces.app.example1.remoteclients.UserSearchService;
 import org.webpieces.app.example1.routes.SearchRequest;
-import org.webpieces.app.example1.util.Responses;
-import org.webpieces.app.mock.MockHydratorService;
-import org.webpieces.app.mock.MockRemoteSystem;
-import org.webpieces.app.mock.MockTweetSearchService;
-import org.webpieces.app.mock.MockUserSearchService;
+import org.webpieces.app.example1.mock.MockHydratorService;
+import org.webpieces.app.example1.mock.MockRemoteSystem;
+import org.webpieces.app.example1.mock.MockTweetSearchService;
 import org.webpieces.data.api.DataWrapper;
 import org.webpieces.data.api.DataWrapperGenerator;
 import org.webpieces.data.api.DataWrapperGeneratorFactory;
@@ -69,6 +68,8 @@ public class TestSearchRequestResponse extends AbstractWebpiecesTest {
 
   private MockTweetSearchService mockTweetSearchService = new MockTweetSearchService();
 
+  private MockAuthenticationService mockAuthenticationService = new MockAuthenticationService();
+
   @Before
   public void setUp() throws InterruptedException, ClassNotFoundException,
       ExecutionException, TimeoutException
@@ -81,12 +82,7 @@ public class TestSearchRequestResponse extends AbstractWebpiecesTest {
     webserver.start();
     http11Socket = connectHttp(runClientRemote, null);
 
-    setupMocks();
-  }
-
-  private void setupMocks() {
-    mockHydratorService.setResponseMap(Responses.createTweetResponseMap());
-    mockTweetSearchService.setResponse(Responses.createBasicTweetIdListResponse());
+    mockAuthenticationService.setResponse(true);
   }
 
   private class AppOverridesModule implements Module {
@@ -96,6 +92,7 @@ public class TestSearchRequestResponse extends AbstractWebpiecesTest {
 
       binder.bind(TweetSearchService.class).toInstance(mockTweetSearchService);
       binder.bind(HydratorService.class).toInstance(mockHydratorService);
+      binder.bind(AuthenticationService.class).toInstance(mockAuthenticationService);
     }
   }
 
@@ -104,8 +101,10 @@ public class TestSearchRequestResponse extends AbstractWebpiecesTest {
    */
   @Test
   public void testBasicSearch() throws IOException {
-    SearchRequest searchReq = new SearchRequest("asdf", 10);
-    HttpFullRequest req = createJsonRequest("/json/search", searchReq);
+    mockHydratorService.setResponseMap(Responses.createTweetResponseMap());
+    mockTweetSearchService.setResponse(Responses.createBasicTweetIdListResponse());
+
+    HttpFullRequest req = createJsonRequest("/json/search", new SearchRequest("asdf", 10));
 
     CompletableFuture<HttpFullResponse> respFuture = http11Socket.send(req);
 
