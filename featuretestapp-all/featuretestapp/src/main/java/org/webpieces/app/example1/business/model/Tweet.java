@@ -1,4 +1,4 @@
-package org.webpieces.app.example1.model;
+package org.webpieces.app.example1.business.model;
 
 public class Tweet {
   private String fromUser;

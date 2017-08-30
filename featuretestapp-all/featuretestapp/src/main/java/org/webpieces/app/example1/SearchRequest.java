@@ -1,4 +1,4 @@
-package org.webpieces.app.example1.routes;
+package org.webpieces.app.example1;
 
 /**
  * Created by pstover on 4/26/17.

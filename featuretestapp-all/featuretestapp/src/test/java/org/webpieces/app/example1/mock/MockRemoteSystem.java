@@ -5,8 +5,6 @@ import java.util.concurrent.CompletableFuture;
 import org.webpieces.mock.MethodEnum;
 import org.webpieces.mock.MockSuperclass;
 
-import org.webpieces.app.base.libs.RemoteService;
-
 public class MockRemoteSystem extends MockSuperclass implements RemoteService {
 
 	public static enum Method implements MethodEnum {

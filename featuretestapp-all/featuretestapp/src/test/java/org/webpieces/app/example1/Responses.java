@@ -1,7 +1,7 @@
 package org.webpieces.app.example1;
 
 import com.google.common.collect.ImmutableMap;
-import org.webpieces.app.example1.model.Tweet;
+import org.webpieces.app.example1.business.model.Tweet;
 
 import java.util.Arrays;
 import java.util.List;

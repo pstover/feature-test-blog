@@ -1,16 +1,14 @@
 package org.webpieces.app.base;
 
-import org.webpieces.app.example1.remoteclients.HydratorService;
-import org.webpieces.app.example1.remoteclients.TweetSearchService;
-import org.webpieces.app.example1.remoteclients.UserSearchService;
-import org.webpieces.app.example1.remoteclients.impl.HydratorServiceImpl;
-import org.webpieces.app.example1.remoteclients.impl.TweetSearchServiceImpl;
-import org.webpieces.app.example1.remoteclients.impl.UserSearchServiceImpl;
-import org.webpieces.router.api.Startable;
+import org.webpieces.app.example1.business.remoteclients.HydratorService;
+import org.webpieces.app.example1.business.remoteclients.TweetSearchService;
+import org.webpieces.app.example1.business.remoteclients.UserSearchService;
+import org.webpieces.app.example1.business.remoteclients.impl.HydratorServiceImpl;
+import org.webpieces.app.example1.business.remoteclients.impl.TweetSearchServiceImpl;
+import org.webpieces.app.example1.business.remoteclients.impl.UserSearchServiceImpl;
 
 import com.google.inject.Binder;
 import com.google.inject.Module;
-import com.google.inject.multibindings.Multibinder;
 
 public class GuiceModule implements Module {
 
@@ -21,10 +19,6 @@ public class GuiceModule implements Module {
   //the list of all the Guice Modules in your application
   @Override
   public void configure(Binder binder) {
-    //all modules have access to adding their own Startable objects to be run on server startup
-    Multibinder<Startable> uriBinder = Multibinder.newSetBinder(binder, Startable.class);
-    uriBinder.addBinding().to(PopulateDatabase.class);
-
     binder.bind(TweetSearchService.class).to(TweetSearchServiceImpl.class);
 
     binder.bind(HydratorService.class).to(HydratorServiceImpl.class);

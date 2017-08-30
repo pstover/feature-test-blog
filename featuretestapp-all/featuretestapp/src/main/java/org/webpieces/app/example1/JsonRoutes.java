@@ -1,4 +1,4 @@
-package org.webpieces.app.example1.routes;
+package org.webpieces.app.example1;
 
 import static org.webpieces.ctx.api.HttpMethod.GET;
 

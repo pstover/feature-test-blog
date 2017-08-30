@@ -1,9 +1,9 @@
 package org.webpieces.app.example1.mock;
 
-import java.util.Map;
+import org.webpieces.app.example1.business.model.Tweet;
+import org.webpieces.app.example1.business.remoteclients.HydratorService;
 
-import org.webpieces.app.example1.remoteclients.HydratorService;
-import org.webpieces.app.example1.model.Tweet;
+import java.util.Map;
 
 public class MockHydratorService implements HydratorService {
   private Map<Integer, Tweet> tweets;

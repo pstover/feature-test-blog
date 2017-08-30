@@ -5,8 +5,6 @@ import java.util.function.Supplier;
 import org.webpieces.mock.MethodEnum;
 import org.webpieces.mock.MockSuperclass;
 
-import org.webpieces.app.base.libs.SomeLibrary;
-
 public class MockSomeLibrary extends MockSuperclass implements SomeLibrary {
 
 	public static enum Method implements MethodEnum {

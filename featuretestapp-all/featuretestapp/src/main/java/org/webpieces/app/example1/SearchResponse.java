@@ -1,9 +1,9 @@
-package org.webpieces.app.example1.routes;
+package org.webpieces.app.example1;
 
 import java.util.List;
 
-import org.webpieces.app.example1.model.Tweet;
-import org.webpieces.app.example1.model.User;
+import org.webpieces.app.example1.business.model.Tweet;
+import org.webpieces.app.example1.business.model.User;
 
 /**
  * Created by pstover on 4/26/17.
