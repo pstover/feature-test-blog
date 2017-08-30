@@ -13,7 +13,6 @@ import org.webpieces.app.example1.business.remoteclients.HydratorService;
 import org.webpieces.app.example1.business.remoteclients.TweetSearchService;
 import org.webpieces.app.example1.mock.MockAuthenticationService;
 import org.webpieces.app.example1.mock.MockHydratorService;
-import org.webpieces.app.example1.mock.MockRemoteSystem;
 import org.webpieces.app.example1.mock.MockTweetSearchService;
 import org.webpieces.data.api.DataWrapper;
 import org.webpieces.data.api.DataWrapperGenerator;
@@ -46,9 +45,6 @@ import java.util.concurrent.TimeoutException;
 public class TestSearchRequestResponse extends AbstractWebpiecesTest {
 
   private final static Logger log = LoggerFactory.getLogger(TestSearchRequestResponse.class);
-
-  //see below comments in AppOverrideModule
-  private MockRemoteSystem mockRemote = new MockRemoteSystem(); //our your favorite mock library
 
   private static String pUnit = HibernatePlugin.PERSISTENCE_TEST_UNIT;
 

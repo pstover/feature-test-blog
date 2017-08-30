@@ -6,7 +6,6 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import org.webpieces.app.example1.business.AuthenticationService;
-import org.webpieces.app.example1.exception.AuthenticationException;
 import org.webpieces.router.api.actions.Action;
 import org.webpieces.router.api.dto.MethodMeta;
 import org.webpieces.router.api.routing.RouteFilter;
